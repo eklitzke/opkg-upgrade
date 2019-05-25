@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ###############################################
 # Gustavo Arnosti Neves
 #
@@ -16,7 +16,7 @@
 
 
 ### Initialization
-OPKGUPVERSION="0.3.5"
+OPKGUPVERSION="0.3.5-eklitzke"
 OPKGBIN="$(command -v opkg 2>/dev/null)"
 SSMTPBIN="$(command -v ssmtp 2>/dev/null)"
 BANNERSTRING="Simple OPKG Updater v$OPKGUPVERSION"
@@ -43,8 +43,8 @@ HTML_FORMAT=$TRUE
 JUST_PRINT_HTML_FLAG=$FALSE
 
 ### This scripts name
-OPKGUP_NAME="$(basename $0)"
-OPKGUP_LOCATION="$(readlink -f $0)"
+OPKGUP_NAME="$(basename "$0")"
+OPKGUP_LOCATION="$(readlink -f "$0")"
 
 ### Execution vars, populated later
 PACKS=""
@@ -59,6 +59,7 @@ PACKS_COUNT=0
 # Load info from /etc/openwrt_release into memory
 source_release() {
     if is_file "$OPENWRT_RELEASE"; then
+        # shellcheck disable=1090
         . "$OPENWRT_RELEASE"
     fi
 }
@@ -81,7 +82,8 @@ main() {
     opkg_init
     upgrade_check      # may exit here
 
-    local uplist="$(list_upgrades)"
+    local uplist
+    uplist="$(list_upgrades)"
     if should_send_ssmtp || just_print_html; then
         if opkg_has_update || should_always_send || just_print_html; then
             QUIET_MODE=$FALSE
@@ -106,7 +108,7 @@ main() {
     fi
     just_print && exit 0
     opkg_has_update || { echo '' ; exit 0 ; }
-    
+
     openwrt_is_snapshot && print_snapshot_disclaimer
 
     if ! no_confirm; then
@@ -159,16 +161,16 @@ print_packs_txt() {
     echo -ne "$PACKS" | awk '
 function rep(c, n){ s=sprintf("%" n "s",""); gsub(/ /,c,s); return s }
 BEGIN{ j=1; } NR>0{
-l[j, 1]=($1); 
-l[j, 2]=($3); 
-l[j++, 3]=($5);  
-max[1]=(length($1)>max[1]?length($1):max[1]); 
-max[2]=(length($3)>max[2]?length($3):max[2]); 
+l[j, 1]=($1);
+l[j, 2]=($3);
+l[j++, 3]=($5);
+max[1]=(length($1)>max[1]?length($1):max[1]);
+max[2]=(length($3)>max[2]?length($3):max[2]);
 max[3]=(length($5)>max[3]?length($5):max[3]);
-max[1]=(max[1]>=7?max[1]:7); 
-max[2]=(max[2]>=7?max[2]:7); 
-max[3]=(max[3]>=7?max[3]:7); 
-} 
+max[1]=(max[1]>=7?max[1]:7);
+max[2]=(max[2]>=7?max[2]:7);
+max[3]=(max[3]>=7?max[3]:7);
+}
 function div(){ printf "+-----+%s+%s+%s+\n", rep("-", max[1]+2), rep("-", max[2]+2), rep("-", max[3]+2) }
 function head() { printf "| %3s | %-" max[1] "s | %-" max[2] "s | %-" max[3] "s |\n", "#", "Package", "Current", "Update" }
 END {div() ; head() ; div() ; for (i=1; i<=NR; i++) printf "| %3d | %-" max[1] "s | %-" max[2] "s | %-" max[3] "s |\n", i, l[i, 1], l[i, 2], l[i, 3]; div()}'
@@ -318,7 +320,7 @@ rt_exception() {
     local r=1
     is_empty "$2" || r=$2
     print_error "$1"
-    exit $r
+    exit "$r"
 }
 
 
@@ -328,7 +330,8 @@ rt_exception() {
 # update package listings
 opkg_update() {
     message_starts "Updating package lists"
-    local err="$("$OPKGBIN" update 2>&1 >/dev/null)";
+    local err
+    err="$("$OPKGBIN" update 2>&1 >/dev/null)";
     is_empty "$err" || rt_exception $'Error when trying to update the package listings.\nDebug Info:\n'"$err"
     message_ends
 }
@@ -384,7 +387,7 @@ awk 'BEGIN{ i=1; l=""; } { if (i % 2) l=""; else l=" style=\"background-color:#d
 print_html_header() {
     echo $'\n\n''<h2 style="'"$HTML_FONT"' font-size:14pt; margin-top:1.5em; font-weight:bold">'"$(print_banner 'nopadding')"'</h2>'
     echo '<table border="1" width="600px" cellpadding="6pt" cellspacing="0" style="border-collapse:collapse;'"$HTML_FONT"' font-size:11pt">'
-    
+
     echo '<tr><td style="font-weight:bold">Router Name</td><td>'"$ROUTER_NAME"'</td></tr>'
     is_not_empty "$DISTRIB_DESCRIPTION" && echo '<tr><td style="font-weight:bold">Description</td><td>'"$DISTRIB_DESCRIPTION"'</td></tr>'
     is_not_empty "$DISTRIB_TARGET" && echo '<tr><td style="font-weight:bold">Target</td><td>'"$DISTRIB_TARGET"'</td></tr>'
@@ -425,6 +428,7 @@ confirm_upgrade() {
 # run the upgrade
 do_upgrade() {
     message_starts $'Upgrading packages\n\n'
+    # shellcheck disable=2086
     "$OPKGBIN" install $PACKS_NAMES
     ret=$?
     message_ends $'\nUpgrade finished\n'
@@ -448,7 +452,8 @@ self_install() {
         exit 40
     fi
     local t="$OPKGUP_INSTALL_DIR/opkg-upgrade"
-    local status="$(cp "$OPKGUP_LOCATION" "$t" 2>&1)"
+    local status
+    status="$(cp "$OPKGUP_LOCATION" "$t" 2>&1)"
     #echo "status: $status"
     if is_not_empty "$status"; then
         print_error "  Could not copy: $t"
@@ -456,8 +461,11 @@ self_install() {
         exit 33
     fi
     echo "    Installed to: $t"
-    chmod +x "$t" 2>/dev/null
-    [ $? -eq 0 ] && status="OK" || status="Fail"
+    if chmod +x "$t" 2>/dev/null; then
+      status="OK"
+    else
+      status="Fail"
+    fi
     echo "chmod executable: $status"
     echo $'\nInstalled with success, bye!\n'
     exit $?
@@ -470,7 +478,8 @@ self_install() {
 # returns $TRUE if we have a valid e-mail address, $FALSE otherwise
 is_valid_email() {
     is_empty "$1" && return $FALSE
-    local f=$(echo "$1" | grep -E -o "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$")
+    local f
+    f=$(echo "$1" | grep -E -o "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$")
     is_empty "$f" && return $FALSE
     return $TRUE
 }

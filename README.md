@@ -1,25 +1,25 @@
 # opkg-upgrade
-List and install OpenWRT / LEDE opkg upgradable packages.  
+List and install OpenWRT / LEDE opkg upgradable packages.
 
-Little `ash` app for easier opkg package upgrades.
+Little `bash` app for easier opkg package upgrades.
 
-**You should check for config conflicts after upgrades!**  
-**Make sure you have enough space on root before installing stuff!**  
-This script is small enough but SSL support for curl/wget is not!  
-You also need free space for downloading and installing the packages!  
-  
-**If you use OpenWRT trunk (dev snapshots), you should probably NOT upgrade**  
-Upgrading development versions can soft-brick your device.  
-You should try to backup your config and do a full install of a later snapshot if you are running dev/trunk.  
-Main releases are fine (just trunk/snapshots are affected by this).  
+**You should check for config conflicts after upgrades!**
+**Make sure you have enough space on root before installing stuff!**
+This script is small enough but SSL support for curl/wget is not!
+You also need free space for downloading and installing the packages!
+
+**If you use OpenWRT trunk (dev snapshots), you should probably NOT upgrade**
+Upgrading development versions can soft-brick your device.
+You should try to backup your config and do a full install of a later snapshot if you are running dev/trunk.
+Main releases are fine (just trunk/snapshots are affected by this).
 It is probably the opposite for releases (recommended to upgrade), since you will get security patches if you upgrade those.
-  
----------------------------------------------- 
-#### If you want to support this project, you can provide me with some :coffee:  
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=A9N3VU2DHP82A&source=url)  
 
-----------------------------------------------  
-  
+----------------------------------------------
+#### If you want to support this project, you can provide me with some :coffee:
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=A9N3VU2DHP82A&source=url)
+
+----------------------------------------------
+
 ### Help example:
 ```
 # ./opkg-upgrade.sh -h
@@ -194,7 +194,7 @@ Done | Getting upgradable packages list
 
 No packages to install!
 ```
-## Install using `git`:  
+## Install using `git`:
 Clone it in current directory and use the `-i` option to install it to `/usr/sbin/opkg-upgrade`
 ```
 # git clone git://github.com/tavinus/opkg-upgrade.git
@@ -202,17 +202,17 @@ Clone it in current directory and use the `-i` option to install it to `/usr/sbi
 # ./opkg-upgrade.sh -i
 ```
 
-## Install using `curl` or `wget`:  
+## Install using `curl` or `wget`:
 
 #### NOTE: curl / wget may fail because of missing SSL certificates.
 You may choose to ignore the certificates check using:
  - `curl -k`
- - `wget --no-check-certificate`  
+ - `wget --no-check-certificate`
 
-Or you will need to fix your `/etc/ssl/certs/ca-certificates.crt` installation.  
-Please note that SSL support takes quite a lot of storage space.  
+Or you will need to fix your `/etc/ssl/certs/ca-certificates.crt` installation.
+Please note that SSL support takes quite a lot of storage space.
 
-This should be enough to make SSL work:  
+This should be enough to make SSL work:
 ```
 opkg install ca-certificates openssl-util
 ```
@@ -257,7 +257,7 @@ curl -k -L 'https://raw.githubusercontent.com/tavinus/opkg-upgrade/master/opkg-u
 ```
 
 ### System install to `/usr/sbin/opkg-upgrade` (no .sh extension) :
-Run with `opkg-upgrade` after downloading 
+Run with `opkg-upgrade` after downloading
 ```bash
 # using wget with SSL
 wget 'https://raw.githubusercontent.com/tavinus/opkg-upgrade/master/opkg-upgrade.sh' -O "/usr/sbin/opkg-upgrade" && chmod 755 "/usr/sbin/opkg-upgrade"
