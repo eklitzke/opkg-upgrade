@@ -51,8 +51,11 @@ PACKS=""
 PACKS_NAMES=""
 PACKS_COUNT=0
 
-
-
+# XXX(eklitzke): we should only run this within tmux
+if [[ -z "$TMUX" ]]; then
+  echo "error: Cowardly refusing to run outside of tmux" >&2
+  exit 1
+fi
 
 ########################### FUNCTIONS STARTS
 
